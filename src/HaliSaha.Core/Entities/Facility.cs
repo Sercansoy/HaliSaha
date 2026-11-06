@@ -11,6 +11,6 @@
         public DateTime CreatedAt { get; set; }
         public FacilityStatus Status { get; set; }
 
-        public List<Pitch> Pitchs { get; set; } = new();
+        public List<Pitch> Pitches { get; set; } = new();
     }
 }

@@ -16,10 +16,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Controllers\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\HaliSaha.Core\HaliSaha.Core.csproj" />
     <ProjectReference Include="..\HaliSaha.Infrastructure\HaliSaha.Infrastructure.csproj" />
   </ItemGroup>
