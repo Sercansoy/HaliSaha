@@ -1,4 +1,4 @@
 <Solution>
-  <Project Path="HaliSaha.Api/HaliSaha.Api.csproj" />
+  <Project Path="src/HaliSaha.Api/HaliSaha.Api.csproj" />
   <Project Path="src/HaliSaha.Core/HaliSaha.Core.csproj" />
 </Solution>
