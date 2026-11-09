@@ -22,20 +22,24 @@ namespace HaliSaha.Api.Controllers
         {
             var facilities = await _context.Facilities
                 .Where(f => f.Status == FacilityStatus.Approved)
-                .Select(f => new FacilityResponse(
-                    f.Id,
-                    f.Name,
-                    f.City,
-                    f.District,
-                    f.Address,
-                    f.Phone,
-                    f.Pitches
-                    .Where(p => p.IsActive)
-                    .Select(p => new PitchResponse(p.Id, p.Name, p.IsIndoor))
-                    .ToList()))
+                .Select(FacilityResponse.Projection)
                 .ToListAsync();
 
             return Ok(facilities);
+        }
+        [HttpGet("{id:int}")]
+        public async Task<ActionResult<FacilityResponse>> GetFacility(int id)
+        {
+            var facility = await _context.Facilities
+                .Where(f => f.Id == id && f.Status == FacilityStatus.Approved)
+                .Select(FacilityResponse.Projection)
+                .FirstOrDefaultAsync();
+                    
+            if(facility == null)
+            {
+                return NotFound();
+            }
+            return Ok(facility);
         }
     }
 }
