@@ -1,4 +1,5 @@
-﻿using HaliSaha.Core.Entities;
+﻿using HaliSaha.Api.Contracts;
+using HaliSaha.Core.Entities;
 using HaliSaha.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -17,12 +18,24 @@ namespace HaliSaha.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Facility>>> GetApprovedFacilities()
+        public async Task<ActionResult<IEnumerable<FacilityResponse>>> GetApprovedFacilities()
         {
-            var approvedFacilities = await _context.Facilities
-                .Where(f => f.Status == FacilityStatus.Approved).ToListAsync();
+            var facilities = await _context.Facilities
+                .Where(f => f.Status == FacilityStatus.Approved)
+                .Select(f => new FacilityResponse(
+                    f.Id,
+                    f.Name,
+                    f.City,
+                    f.District,
+                    f.Address,
+                    f.Phone,
+                    f.Pitches
+                    .Where(p => p.IsActive)
+                    .Select(p => new PitchResponse(p.Id, p.Name, p.IsIndoor))
+                    .ToList()))
+                .ToListAsync();
 
-            return Ok(approvedFacilities);
+            return Ok(facilities);
         }
     }
 }
