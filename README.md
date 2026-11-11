@@ -48,7 +48,7 @@ Hata cevapları standart **ProblemDetails** (RFC 9457) formatındadır.
 - [x] Katmanlı proje yapısı, EF Core ve ilk migration
 - [x] Tesis listeleme ve detay uç noktaları
 - [x] GitHub Actions ile otomatik derleme
-- [ ] Birim testleri
+- [x] Birim testleri
 - [ ] JWT ile kimlik doğrulama ve rol bazlı yetkilendirme (oyuncu / saha sahibi / admin)
 - [ ] Rezervasyon ve aynı saatin çift kiralanmasını engelleyen eşzamanlılık kontrolü
 - [ ] Docker ve Azure'a otomatik deploy
