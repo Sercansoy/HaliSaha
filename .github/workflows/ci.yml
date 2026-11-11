@@ -24,3 +24,6 @@ jobs:
 
       - name: Derle
         run: dotnet build --no-restore --configuration Release
+
+      - name: Testleri çalıştır
+        run: dotnet test --no-build --configuration Release
