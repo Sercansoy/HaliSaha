@@ -1,4 +1,5 @@
-﻿using HaliSaha.Api.Contracts;
+﻿using Azure.Core;
+using HaliSaha.Api.Contracts;
 using HaliSaha.Core.Entities;
 using HaliSaha.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Identity;
@@ -50,6 +51,37 @@ namespace HaliSaha.Api.Controllers
             var response = new UserResponse(user.Id, user.FullName, user.Email, user.Role.ToString());
 
             return Ok(response);
+        }
+
+        [HttpPost("login")]
+        public async Task<ActionResult<UserResponse>> Login([FromBody] LoginRequest request)
+        {
+            var normalizedEmail = request.Email.Trim().ToLowerInvariant();
+
+            var user = await _context.Users.FirstOrDefaultAsync(u=> u.Email == normalizedEmail);
+
+            if(user == null)
+            {
+                return Problem(
+                    title: "Giriş başarısız",
+                    detail: "E-posta veya şifre hatalı",
+                    statusCode: StatusCodes.Status401Unauthorized
+                    );
+            }
+
+            var result = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, request.Password);
+            if (result == PasswordVerificationResult.Failed)
+            {
+                return Problem(
+                    title: "Giriş başarısız",
+                    detail: "E-posta veya şifre hatalı",
+                    statusCode: StatusCodes.Status401Unauthorized);
+            }
+
+            var userResponse = new UserResponse(user.Id, user.FullName, user.Email, user.Role.ToString());
+           
+            return Ok(userResponse);
+
         }
     }
 

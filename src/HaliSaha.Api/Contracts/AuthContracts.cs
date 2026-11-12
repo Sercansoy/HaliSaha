@@ -8,5 +8,9 @@ namespace HaliSaha.Api.Contracts
             [Required, MinLength(8)] string Password);
 
         public record UserResponse (int Id, string Fullname, string Email, string Role);
+
+    public record LoginRequest(
+        [Required, EmailAddress] string Email,
+        [Required] string Password);
 }
 
