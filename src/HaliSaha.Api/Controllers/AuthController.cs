@@ -60,22 +60,14 @@ namespace HaliSaha.Api.Controllers
 
             var user = await _context.Users.FirstOrDefaultAsync(u=> u.Email == normalizedEmail);
 
-            if(user == null)
+            if(user == null || 
+                _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, request.Password) == PasswordVerificationResult.Failed)
             {
                 return Problem(
                     title: "Giriş başarısız",
                     detail: "E-posta veya şifre hatalı",
                     statusCode: StatusCodes.Status401Unauthorized
                     );
-            }
-
-            var result = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, request.Password);
-            if (result == PasswordVerificationResult.Failed)
-            {
-                return Problem(
-                    title: "Giriş başarısız",
-                    detail: "E-posta veya şifre hatalı",
-                    statusCode: StatusCodes.Status401Unauthorized);
             }
 
             var userResponse = new UserResponse(user.Id, user.FullName, user.Email, user.Role.ToString());
