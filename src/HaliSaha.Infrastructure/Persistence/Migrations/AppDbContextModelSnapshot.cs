@@ -89,10 +89,44 @@ namespace HaliSaha.Infrastructure.Persistence.Migrations
                     b.ToTable("Pitches");
                 });
 
+            modelBuilder.Entity("HaliSaha.Core.Entities.User", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Role")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Email")
+                        .IsUnique();
+
+                    b.ToTable("Users");
+                });
+
             modelBuilder.Entity("HaliSaha.Core.Entities.Pitch", b =>
                 {
                     b.HasOne("HaliSaha.Core.Entities.Facility", null)
-                        .WithMany("Pitchs")
+                        .WithMany("Pitches")
                         .HasForeignKey("FacilityId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -100,7 +134,7 @@ namespace HaliSaha.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("HaliSaha.Core.Entities.Facility", b =>
                 {
-                    b.Navigation("Pitchs");
+                    b.Navigation("Pitches");
                 });
 #pragma warning restore 612, 618
         }

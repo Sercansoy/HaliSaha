@@ -9,7 +9,17 @@ namespace HaliSaha.Infrastructure.Persistence
         {
         }
 
-        public DbSet<Facility> Facilities { get; set; }
-        public DbSet<Pitch> Pitches { get; set; }
+        public DbSet<Facility> Facilities => Set<Facility>();
+        public DbSet<Pitch> Pitches => Set<Pitch>();
+        public DbSet<User> Users => Set<User>();
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<User>()
+                .HasIndex(u => u.Email)
+                .IsUnique();
+        }       
     }
 }
