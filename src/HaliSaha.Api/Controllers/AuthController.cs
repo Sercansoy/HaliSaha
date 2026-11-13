@@ -1,4 +1,4 @@
-﻿using Azure.Core;
+﻿using HaliSaha.Api.Auth;
 using HaliSaha.Api.Contracts;
 using HaliSaha.Core.Entities;
 using HaliSaha.Infrastructure.Persistence;
@@ -15,10 +15,13 @@ namespace HaliSaha.Api.Controllers
         private readonly AppDbContext _context;
         private readonly IPasswordHasher<User> _passwordHasher;
 
-        public AuthController(AppDbContext context, IPasswordHasher<User> passwordHasher)
+        private readonly TokenService _tokenService;
+
+        public AuthController(AppDbContext context, IPasswordHasher<User> passwordHasher, TokenService tokenService)
         {
             _context = context;
             _passwordHasher = passwordHasher;
+            _tokenService = tokenService;
         }
         [HttpPost("register")]
         public async Task<ActionResult<UserResponse>> Register([FromBody] RegisterRequest request)
@@ -54,7 +57,7 @@ namespace HaliSaha.Api.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<ActionResult<UserResponse>> Login([FromBody] LoginRequest request)
+        public async Task<ActionResult<LoginResponse>> Login([FromBody] LoginRequest request)
         {
             var normalizedEmail = request.Email.Trim().ToLowerInvariant();
 
@@ -70,10 +73,16 @@ namespace HaliSaha.Api.Controllers
                     );
             }
 
-            var userResponse = new UserResponse(user.Id, user.FullName, user.Email, user.Role.ToString());
-           
-            return Ok(userResponse);
+            var (token, expiresAt) = _tokenService.CreateToken(user);
 
+            var userResponse = new UserResponse(user.Id, user.FullName, user.Email, user.Role.ToString());
+
+            var loginResponse = new LoginResponse(
+                AccessToken: token,
+                ExpiresAt: expiresAt,
+                User: userResponse);
+           
+            return Ok(loginResponse);
         }
     }
 
