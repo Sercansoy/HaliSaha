@@ -2,9 +2,12 @@
 using HaliSaha.Api.Contracts;
 using HaliSaha.Core.Entities;
 using HaliSaha.Infrastructure.Persistence;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace HaliSaha.Api.Controllers
 {
@@ -61,9 +64,9 @@ namespace HaliSaha.Api.Controllers
         {
             var normalizedEmail = request.Email.Trim().ToLowerInvariant();
 
-            var user = await _context.Users.FirstOrDefaultAsync(u=> u.Email == normalizedEmail);
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == normalizedEmail);
 
-            if(user == null || 
+            if (user == null ||
                 _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, request.Password) == PasswordVerificationResult.Failed)
             {
                 return Problem(
@@ -81,9 +84,36 @@ namespace HaliSaha.Api.Controllers
                 AccessToken: token,
                 ExpiresAt: expiresAt,
                 User: userResponse);
-           
+
             return Ok(loginResponse);
         }
-    }
 
+
+        [HttpGet("me")]
+        [Authorize]
+        public async Task<ActionResult<UserResponse>> GetMe()
+        {
+            var userIdClaim = User.FindFirstValue(JwtRegisteredClaimNames.Sub);
+
+            if(!int.TryParse(userIdClaim, out var userId))
+            {
+                return Unauthorized();
+            }
+
+            var user = await _context.Users.FindAsync(userId);
+
+            if (user == null)
+            {
+                return Unauthorized();
+            }
+
+            var userResponse = new UserResponse(
+                user.Id,
+                user.FullName,
+                user.Email,
+                user.Role.ToString());
+
+            return Ok(userResponse);
+        }
+    }
 }
