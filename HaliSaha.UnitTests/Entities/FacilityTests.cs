@@ -5,6 +5,9 @@ namespace HaliSaha.UnitTests.Entities
 {
     public class FacilityTests
     {
+        private static Facility CreatePendingFacility() => new Facility { Name = "Test Halısaha", City = "İstanbul", District = "Bayrampaşa" };
+
+
         [Fact]
         public void AddPitch_ValidName_AddsPitchToFacility()
         {
@@ -61,6 +64,31 @@ namespace HaliSaha.UnitTests.Entities
             facility.AddPitch("Saha 1", true);
 
             Assert.Throws<DomainException>(() => facility.AddPitch(" Saha 1", true));
+        }
+
+        [Fact]
+        public void Approve_PendingFacility_StatusBecomesApproved()
+        {
+            // Arrange
+            var facility = CreatePendingFacility();
+
+            // Act
+            facility.Approve();
+
+            // Assert
+            Assert.Equal(FacilityStatus.Approved, facility.Status);
+        }
+
+        [Fact]
+        public void Approve_AlreadyApprovedFacility_ThrowsInvalidOperationException()
+        {
+            // Arrange
+            var facility = CreatePendingFacility();
+            facility.Approve();
+
+            // Act & Assert
+            Assert.Throws<InvalidOperationException>(()=> facility.Approve());
+            Assert.Equal(FacilityStatus.Approved, facility.Status);
         }
     }
 }

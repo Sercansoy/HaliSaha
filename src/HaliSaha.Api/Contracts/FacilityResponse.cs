@@ -25,4 +25,10 @@ namespace HaliSaha.Api.Contracts
             .ToList()
             );
     }
+    public record PendingFacilityResponse(
+        int Id,
+        string Name,
+        string City,
+        string District,
+        DateTime CreatedAt);
 }

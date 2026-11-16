@@ -1,4 +1,5 @@
 using HaliSaha.Api.Auth;
+using HaliSaha.Api.Startup;
 using HaliSaha.Core.Entities;
 using HaliSaha.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -7,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 using System.Text;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -49,6 +51,8 @@ builder.Services
     });
 
 var app = builder.Build();
+
+await app.SeedAdminAsync();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

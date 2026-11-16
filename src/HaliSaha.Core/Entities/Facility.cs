@@ -11,7 +11,7 @@ namespace HaliSaha.Core.Entities
         public string Address {  get; set; } = string.Empty;
         public string Phone { get; set; } = string.Empty;
         public DateTime CreatedAt { get; set; }
-        public FacilityStatus Status { get; set; }
+        public FacilityStatus Status { get; private set; } = FacilityStatus.Pending;
         public List<Pitch> Pitches { get; set; } = new();
         public Pitch AddPitch(string name,bool isIndoor)
         {
@@ -37,6 +37,12 @@ namespace HaliSaha.Core.Entities
 
             return newPitch;
                 
+        }
+        public void Approve()
+        {
+            if (Status != FacilityStatus.Pending)
+                throw new InvalidOperationException("Sadece onay bekleyen tesisler onaylayabilir");
+            Status = FacilityStatus.Approved;
         }
     }
 }
