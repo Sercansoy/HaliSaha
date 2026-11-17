@@ -35,6 +35,9 @@ Bağımlılık yönü: `Api → Infrastructure → Core`. Core hiçbir projeye b
 | POST | `/api/auth/login` | Giriş yapar, JWT token döner |
 | GET | `/api/auth/me` | Giriş yapmış kullanıcının bilgileri 🔒 |
 | GET | `/api/admin/facilities/pending` | Onay bekleyen tesisler 🔒 Admin |
+| POST | `/api/facilities` | Yeni tesis ekler, admin onayı bekler 🔒 Saha sahibi |
+| POST | `/api/facilities/{id}/pitches` | Kendi tesisine saha ekler 🔒 Saha sahibi |
+| POST | `/api/admin/facilities/{id}/approve` | Tesisi onaylar 🔒 Admin |
 
 Hata cevapları standart **ProblemDetails** (RFC 9457) formatındadır.
 
@@ -64,8 +67,9 @@ Hata cevapları standart **ProblemDetails** (RFC 9457) formatındadır.
 - [x] GitHub Actions ile otomatik derleme
 - [x] Birim testleri
 - [x] JWT ile kimlik doğrulama ve rol bazlı yetkilendirme (oyuncu / saha sahibi / admin)
+- [x] JWT ile kimlik doğrulama ve rol bazlı yetkilendirme (oyuncu / saha sahibi / admin)
 - [ ] Rezervasyon ve aynı saatin çift kiralanmasını engelleyen eşzamanlılık kontrolü
 - [ ] Docker ve Azure'a otomatik deploy
 - [ ] React + TypeScript arayüz
-- [ ] iyzico ile kapora ödemesi (sandbox)
 - [ ] Azure Functions ile maç hatırlatma bildirimi
+- [ ] iyzico ile kapora ödemesi (sandbox)
