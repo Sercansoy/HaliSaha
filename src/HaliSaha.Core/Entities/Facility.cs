@@ -5,6 +5,8 @@ namespace HaliSaha.Core.Entities
     public class Facility
     {
         public int Id { get; set; }
+        public int OwnerId { get; set; }
+        public User Owner { get; set; } = null!;
         public string Name { get; set; } = string.Empty;
         public string City { get; set; } = string.Empty;
         public string District { get; set; } = string.Empty;

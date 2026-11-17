@@ -1,8 +1,11 @@
 ﻿using HaliSaha.Api.Contracts;
 using HaliSaha.Core.Entities;
 using HaliSaha.Infrastructure.Persistence;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace HaliSaha.Api.Controllers
 {
@@ -27,6 +30,7 @@ namespace HaliSaha.Api.Controllers
 
             return Ok(facilities);
         }
+
         [HttpGet("{id:int}")]
         public async Task<ActionResult<FacilityResponse>> GetFacility(int id)
         {
@@ -41,5 +45,46 @@ namespace HaliSaha.Api.Controllers
             }
             return Ok(facility);
         }
+
+        [HttpPost]
+        [Authorize(Roles = nameof(UserRole.FacilityOwner))]
+        public async Task<IActionResult> CreateFacility([FromBody] CreateFacilityRequest request)
+        {
+            // 1. Giriş yapan kullanıcının Id'sini token'dan al
+            var userIdClaim = User.FindFirstValue(JwtRegisteredClaimNames.Sub);
+            if (!int.TryParse(userIdClaim, out var userId))
+            {
+                return Unauthorized();
+            }
+
+            // 2. Tesisi oluştur (Status otomatik olarak Pending başlar)
+            var facility = new Facility
+            {
+                Name = request.Name.Trim(),
+                City = request.City.Trim(),
+                District = request.District.Trim(),
+                Address = request.Address.Trim(),
+                Phone = request.Phone.Trim(),
+                OwnerId = userId,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            // 3. Kaydet
+            _context.Facilities.Add(facility);
+            await _context.SaveChangesAsync();
+
+            // 4. 201 Created dön
+            var response = new FacilityResponse(
+                facility.Id,
+                facility.Name,
+                facility.City,
+                facility.District,
+                facility.Address,
+                facility.Phone,
+                []);
+
+            return CreatedAtAction(nameof(GetFacility), new { id = facility.Id }, response);
+        }
+
     }
 }

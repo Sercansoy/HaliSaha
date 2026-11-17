@@ -17,9 +17,26 @@ namespace HaliSaha.Infrastructure.Persistence
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<User>()
-                .HasIndex(u => u.Email)
-                .IsUnique();
-        }       
+            modelBuilder.Entity<User>(e =>
+            {
+                e.HasIndex(u => u.Email).IsUnique();
+                e.Property(u => u.FullName).HasMaxLength(100);
+                e.Property(u => u.Email).HasMaxLength(254);
+            });
+
+            modelBuilder.Entity<Facility>(e =>
+            {
+                e.Property(f => f.Name).HasMaxLength(100);
+                e.Property(f => f.City).HasMaxLength(50);
+                e.Property(f => f.District).HasMaxLength(50);
+                e.Property(f => f.Address).HasMaxLength(200);
+                e.Property(f => f.Phone).HasMaxLength(20);
+            });
+
+            modelBuilder.Entity<Pitch>(e =>
+            {
+                e.Property(p => p.Name).HasMaxLength(100);
+            });
+        }
     }
 }
