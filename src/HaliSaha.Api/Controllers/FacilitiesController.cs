@@ -1,10 +1,12 @@
 ﻿using HaliSaha.Api.Contracts;
 using HaliSaha.Core.Entities;
+using HaliSaha.Core.Exceptions;
 using HaliSaha.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq.Expressions;
 using System.Security.Claims;
 
 namespace HaliSaha.Api.Controllers
@@ -86,5 +88,50 @@ namespace HaliSaha.Api.Controllers
             return CreatedAtAction(nameof(GetFacility), new { id = facility.Id }, response);
         }
 
+        [HttpPost("{facilityId:int}/pitches")]
+        [Authorize(Roles = nameof(UserRole.FacilityOwner))]
+        public async Task<IActionResult> AddPitch(int facilityId, [FromBody] CreatePitchRequest request)
+        {
+            var userIdClaim = User.FindFirstValue(JwtRegisteredClaimNames.Sub);
+
+            if(!int.TryParse(userIdClaim, out var userId))
+            {
+                return Unauthorized();
+            }
+
+            var facility = await _context.Facilities
+                .Include(f=> f.Pitches)
+                .FirstOrDefaultAsync(f => f.Id == facilityId);
+
+            if(facility == null)
+            {
+                return NotFound();
+            }
+            //IDOR (Insecure Direct Object Reference) kısmı
+            if (facility.OwnerId != userId)
+            {
+                return Forbid();
+            }
+
+            try
+            {
+                var pitch = facility.AddPitch(request.Name, request.IsIndoor);
+                await _context.SaveChangesAsync();
+
+                var response = new PitchResponse
+                (
+                    pitch.Id,
+                    pitch.Name,
+                    pitch.IsIndoor
+                );
+
+                return CreatedAtAction(nameof(GetFacility), new { id = facilityId }, response);
+            }
+            catch(DomainException ex)
+            {
+                return Problem(detail: ex.Message, statusCode: StatusCodes.Status409Conflict);
+            }
+
+        }
     }
 }

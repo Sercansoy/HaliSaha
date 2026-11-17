@@ -39,4 +39,8 @@ namespace HaliSaha.Api.Contracts
         [Required, MaxLength(50)] string District,
         [Required, MaxLength(200)] string Address,
         [Required, MaxLength(20)] string Phone);
+
+    public record CreatePitchRequest(
+        [Required, MaxLength(100)] string Name,
+        bool IsIndoor);
 }
