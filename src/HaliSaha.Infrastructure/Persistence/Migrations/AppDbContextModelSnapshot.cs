@@ -100,6 +100,44 @@ namespace HaliSaha.Infrastructure.Persistence.Migrations
                     b.ToTable("Pitches");
                 });
 
+            modelBuilder.Entity("HaliSaha.Core.Entities.Reservation", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("CancellationReason")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("PitchId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("StartTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("PitchId", "StartTime")
+                        .IsUnique()
+                        .HasFilter("[Status]<> 2");
+
+                    b.ToTable("Reservations");
+                });
+
             modelBuilder.Entity("HaliSaha.Core.Entities.User", b =>
                 {
                     b.Property<int>("Id")
@@ -154,6 +192,25 @@ namespace HaliSaha.Infrastructure.Persistence.Migrations
                         .HasForeignKey("FacilityId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("HaliSaha.Core.Entities.Reservation", b =>
+                {
+                    b.HasOne("HaliSaha.Core.Entities.Pitch", "Pitch")
+                        .WithMany()
+                        .HasForeignKey("PitchId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HaliSaha.Core.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Pitch");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("HaliSaha.Core.Entities.Facility", b =>

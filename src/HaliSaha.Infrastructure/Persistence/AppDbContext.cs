@@ -12,6 +12,7 @@ namespace HaliSaha.Infrastructure.Persistence
         public DbSet<Facility> Facilities => Set<Facility>();
         public DbSet<Pitch> Pitches => Set<Pitch>();
         public DbSet<User> Users => Set<User>();
+        public DbSet<Reservation> Reservations => Set<Reservation>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -36,6 +37,19 @@ namespace HaliSaha.Infrastructure.Persistence
             modelBuilder.Entity<Pitch>(e =>
             {
                 e.Property(p => p.Name).HasMaxLength(100);
+            });
+
+            modelBuilder.Entity<Reservation>(e =>
+            {
+                e.Property(f => f.CancellationReason).HasMaxLength(200);
+                e.HasIndex(r => new { r.PitchId, r.StartTime })
+                .IsUnique()
+                .HasFilter("[Status]<> 2");
+
+                e.HasOne(r=>r.User)
+                .WithMany()
+                .HasForeignKey(r=>r.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
             });
         }
     }
