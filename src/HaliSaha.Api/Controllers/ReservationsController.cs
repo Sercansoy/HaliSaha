@@ -107,7 +107,6 @@ namespace HaliSaha.Api.Controllers
                 PitchId = request.PitchId,
                 StartTime = request.StartTime,
                 UserId = userId,
-                Status = ReservationStatus.Pending,
                 CreatedAt = now
             };
             // 5. Kaydet
