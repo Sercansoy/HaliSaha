@@ -18,6 +18,8 @@ namespace HaliSaha.Api.Controllers
     public class ReservationsController : ControllerBase
     {
         private readonly AppDbContext _context;
+        private const int FirstStartHour = 12;
+        private const int LastStartHour = 22;
 
         public ReservationsController(AppDbContext context)
         {
@@ -92,6 +94,10 @@ namespace HaliSaha.Api.Controllers
             if(request.StartTime.Minute != 0 || request.StartTime.Second  != 0)
             {
                 return BadRequest("Başlangıç saati tam saat olmalıdır");
+            }
+            if (request.StartTime.Hour < FirstStartHour || request.StartTime.Hour > LastStartHour)
+            {
+                return BadRequest($"Rezervasyon başlangıç saati {FirstStartHour} ile {LastStartHour} saati arasında olmalıdır");
             }
 
             // 4. Yeni Reservation nesnesi oluştur
