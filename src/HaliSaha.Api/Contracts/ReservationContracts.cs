@@ -20,4 +20,9 @@ namespace HaliSaha.Api.Contracts
         public ReservationStatus Status { get; set; }
         public string? CancellationReason { get; set; }
     }
+
+    public class CancelReservationRequest
+    {
+        public string? Reason {  get; set; }
+    }
 }

@@ -59,6 +59,59 @@ namespace HaliSaha.Api.Controllers
             return Ok(response);
         }
 
+        [HttpPost("{id}/cancel")]
+        [Authorize]
+        public async Task<IActionResult> CancelReservation(int id , CancelReservationRequest request)
+        {
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var now = DateTime.UtcNow;
+
+            var reservation = await _context.Reservations
+                .Include(x => x.Pitch)
+                .FirstOrDefaultAsync(r => r.Id == id);
+
+            if(reservation is null)
+            {
+                return NotFound();
+            }
+            try 
+            { 
+                if (User.IsInRole("Owner"))
+                {
+                    var ownerId = await _context.Facilities
+                        .Where(f => f.Id == reservation.Pitch.FacilityId)
+                        .Select(f => f.OwnerId)
+                        .FirstAsync();
+
+                    if(ownerId != userId)
+                
+                    return NotFound();
+
+                    reservation.CancelByOwner(now, request.Reason!);
+                }
+                else if (User.IsInRole("Player"))
+                {
+                    if (reservation.UserId != userId)
+                        return NotFound();
+
+                    reservation.CancelByPlayer(now);
+                }
+                else
+                {
+                    return Forbid();
+                }
+            }
+            catch(DomainException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
+            await _context.SaveChangesAsync();
+            return NoContent();
+            
+        }
+        
+
         [HttpPost]
         [Authorize(Roles = nameof(UserRole.Player))]
         public async Task<ActionResult<ReservationResponse>> CreateReservation(CreateReservationRequest request)
