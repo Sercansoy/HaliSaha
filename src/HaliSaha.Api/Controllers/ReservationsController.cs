@@ -63,8 +63,13 @@ namespace HaliSaha.Api.Controllers
         [Authorize]
         public async Task<IActionResult> CancelReservation(int id , CancelReservationRequest request)
         {
-            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-            var now = DateTime.UtcNow;
+            var userIdClaim = User.FindFirstValue(JwtRegisteredClaimNames.Sub);
+            if(!int.TryParse(userIdClaim, out var userId))
+            {
+                return Unauthorized();
+            }
+
+            var now = DateTime.Now;
 
             var reservation = await _context.Reservations
                 .Include(x => x.Pitch)
@@ -76,20 +81,20 @@ namespace HaliSaha.Api.Controllers
             }
             try 
             { 
-                if (User.IsInRole("Owner"))
+                if (User.IsInRole(nameof(UserRole.FacilityOwner)))
                 {
                     var ownerId = await _context.Facilities
                         .Where(f => f.Id == reservation.Pitch.FacilityId)
                         .Select(f => f.OwnerId)
                         .FirstAsync();
 
-                    if(ownerId != userId)
+                    if(ownerId!= userId)
                 
                     return NotFound();
 
                     reservation.CancelByOwner(now, request.Reason!);
                 }
-                else if (User.IsInRole("Player"))
+                else if (User.IsInRole(nameof(UserRole.Player)))
                 {
                     if (reservation.UserId != userId)
                         return NotFound();
