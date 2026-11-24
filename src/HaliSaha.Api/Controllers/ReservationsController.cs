@@ -215,6 +215,15 @@ namespace HaliSaha.Api.Controllers
 
             return Ok(reservations);
         }
+        public sealed record DailyPitchResponse(
+            int PitchId,
+            string PitchName,
+            IReadOnlyList<DailyReservationResponse> Reservations);
 
+        public sealed record DailyReservationResponse(
+            int Id,
+            DateTime StartTime,
+            ReservationStatus Status,
+            string PlayerFullName);
     }
 }
