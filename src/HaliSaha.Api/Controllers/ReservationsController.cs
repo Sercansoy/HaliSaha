@@ -195,13 +195,12 @@ namespace HaliSaha.Api.Controllers
         [Authorize(Roles = nameof(UserRole.Player))]
         public async Task<ActionResult<List<ReservationResponse>>> GetMyReservation()
         {
-            // 1. Token'dan Id'yi al
             var userIdClaim = User.FindFirstValue(JwtRegisteredClaimNames.Sub);
             if(!int.TryParse(userIdClaim, out var userId))
             {
                 return Unauthorized();
             }
-            // 2. Bu oyuncunun rezervasyonlarını bul (hangi alan, hangi sıra?)
+
             var reservations = await _context.Reservations
                 .Where(x => x.UserId == userId)
                 .OrderByDescending(r => r.StartTime)
@@ -213,7 +212,7 @@ namespace HaliSaha.Api.Controllers
                     Status = r.Status,
                     CancellationReason = r.CancellationReason
                 }).ToListAsync();
-            // 4. Listeyi dön
+
             return Ok(reservations);
         }
 
