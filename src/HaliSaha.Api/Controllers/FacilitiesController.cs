@@ -133,5 +133,53 @@ namespace HaliSaha.Api.Controllers
             }
 
         }
+
+        [HttpGet("{facilityId:int}/reservations")]
+        [Authorize(Roles = nameof(UserRole.FacilityOwner))]
+        public async Task<ActionResult<List<DailyPitchResponse>>> GetDailyReservations(
+            int facilityId,
+            [FromQuery] DateOnly? date = null)
+        {
+            var userIdClaim = User.FindFirstValue(JwtRegisteredClaimNames.Sub);
+
+            if(!int.TryParse(userIdClaim, out var userId))
+            {
+                return Unauthorized();
+            }
+
+            var targetDay = date ?? DateOnly.FromDateTime(DateTime.Now);
+
+            var dayStart = targetDay.ToDateTime(TimeOnly.MinValue);
+            var dayEnd = dayStart.AddDays(1);
+
+            var isOwner = await _context.Facilities
+                .AnyAsync(f => f.Id == facilityId && f.OwnerId == userId);
+            if (!isOwner)
+            {
+                return NotFound();
+            }
+
+            var result = await _context.Pitches
+                .Where(p => p.FacilityId == facilityId)
+                .OrderBy(p => p.Id)
+                .Select(p => new DailyPitchResponse(
+                    p.Id,
+                    p.Name,
+                    _context.Reservations
+                    .Where(r => r.PitchId == p.Id
+                    && r.StartTime >= dayStart
+                    && r.StartTime < dayEnd)
+                    .OrderBy(r => r.StartTime)
+                    .Select(r => new DailyReservationResponse(
+                        r.Id,
+                        r.StartTime,
+                        r.Status,
+                        r.User.FullName))
+                    .ToList()))
+                .ToListAsync();
+
+            return Ok(result);
+        }
+        
     }
 }

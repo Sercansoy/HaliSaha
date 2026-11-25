@@ -25,4 +25,15 @@ namespace HaliSaha.Api.Contracts
     {
         public string? Reason {  get; set; }
     }
+
+    public sealed record DailyPitchResponse(
+            int PitchId,
+            string PitchName,
+            IReadOnlyList<DailyReservationResponse> Reservations);
+
+    public sealed record DailyReservationResponse(
+        int Id,
+        DateTime StartTime,
+        ReservationStatus Status,
+        string PlayerFullName);
 }
