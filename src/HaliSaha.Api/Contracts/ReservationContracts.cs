@@ -36,4 +36,5 @@ namespace HaliSaha.Api.Contracts
         DateTime StartTime,
         ReservationStatus Status,
         string PlayerFullName);
+
 }
