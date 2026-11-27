@@ -34,9 +34,8 @@ namespace HaliSaha.Api.Controllers
             }
 
             var pitchExists = await _context.Facilities
-                .Where(f=>f.Status == FacilityStatus.Approved)
-                .SelectMany(f=> f.Pitches)
-                .AnyAsync(p=> p.Id == id && p.IsActive);
+                .BookablePitches()
+                .AnyAsync(p => p.Id == id);
 
             if (!pitchExists)
             {
