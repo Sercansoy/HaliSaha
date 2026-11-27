@@ -127,8 +127,11 @@ namespace HaliSaha.Api.Controllers
                 return Unauthorized();
             }
 
-            // 2. Saha var mı? Yoksa 404
-            var pitch = await _context.Pitches.FirstOrDefaultAsync(x => x.Id == request.PitchId && x.IsActive);
+            // 2. Saha var mı, aktif mi, tesisi onaylı mı? Değilse 404
+            //    (Onay bekleyen tesisin varlığını dışarıya göstermiyoruz.)
+            var pitch = await _context.Facilities
+                .BookablePitches()
+                .FirstOrDefaultAsync(p => p.Id == request.PitchId);
 
             if(pitch == null)
             {
